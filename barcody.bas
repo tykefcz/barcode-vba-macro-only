@@ -1,5 +1,11 @@
+Attribute VB_Name = "barcody"
 Rem  *****  BASIC  *****
-Option VBASupport 1
+Rem This software is distributd under The MIT License (MIT)
+Rem Copyright © 2013 Madeta a.s. Jiri Gabriel
+Rem Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Rem The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+Rem THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Rem
 Option Explicit
 Const BCEnc128$ = "1A1B1B1B1A1B1B1B1A0B0B1C0B0C1B0C0B1B0B1B0C0B1C0B0C1B0B1B0B0C1B0C0B1C0B0B0A1B2B0B1A2B0B1B2A0A2B1B0B2A1B0B2B1A1B2B0A1B0A2B1B0B2A1A2B0B1B2A0B2A1A2A2A0B1B2B0A1B2B0B1A2A1B0B2B1A0B2B1B0A1A1A1C1A1C1A1C1A1A0A0C1C0C0A1C0C0C1A0A1C0C0C1A0C0C1C0A1A0C0C1C0A0C1C0C0A0A1A2C0A1C2A0C1A2A0A2A1C0A2C1A0C2A1A2A2A1A1A0C2A1C0A2A1A2A0C1A2C0A1A2A2A2A0A1C2A0C1A2C0A1A2A1A0C2A1C0A2C1A0A2A3A0A1B0D0A3C0A0A0A0B1D0A0D1B0B0A1D0B0D1A0D0A1B0D0B1A0A1B0D0A1D0B0B1A0D0B1D0A0D1A0B0D1B0A1D0B0A1B0A0D3A2A0A1D0A0B0C3A0A0A0B3B0B0A3B0B0B3A0A3B0B0B3A0B0B3B0A3A0B0B3B0A0B3B0B0A1A1A3A1A3A1A3A1A1A0A0A3C0A0C3A0C0A3A0A3A0C0A3C0A3A0A0C3A0C0A0A2A3A0A3A2A2A0A3A3A0A2A1A0D0B1A0B0D1A0B2B1C2A0A1"
 Const BCEncE13$ = "C6A5A5B77B5AB6B5A6B66B6AB5B6B6A66A6BA8A5A5D55D5AA5C6B7A55A7BA6C5A7B55B7AA5A8D5A55A5DA7A6B5C55C5BA6A7C5B55B5CC5A6B5A77A5B"
@@ -7,6 +13,8 @@ Const BCEnc39$ = "0A0C3A3A03A0C0A0A30A3C0A0A33A3C0A0A00A0C3A0A33A0C3A0A00A3C3A0A
 Const BCChs39$ = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%"
 Const BCExt39$ = "%U$A$B$C$D$E$F$G$H$I$J$K$L$M$N$O$P$Q$R$S$T$U$V$W$X$Y$Z%A%B%C%D%Esp/A/B/C/D/E/F/G/H/I/J/K/L - ./O 0 1 2 3 4 5 6 7 8 9/Z%F%G%H%iJ%V A B C D E F G H I J K L M N O P Q R S T U V W X Y Z%K%L%M%N%O%W+A+B+C+D+E+F+G+H+I+J+K+L+M+N+O+P+Q+R+S+T+U+V+W+X+Y+Z%P%Q%R%S%T"
 Const BCEnc25$ = "00110100010100111000001011010001100000111001001010AABBABAAABABAABBBAAAAABABBABAAABBAAAAABBBAABAABABA"
+Const qralnum$ = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:"
+
 Dim IsMs As Boolean
 Sub Init()
   If VarType(Asc("A")) = 2 Then IsMs = True Else IsMs = False
@@ -68,6 +76,7 @@ Public Function EncodeBarcode(ShIx As Integer, xAddr As String, _
   End If
   Exit Function
 End Function
+
 Function AscL(s As String) As Long
   If IsMs Then AscL = AscW(s) Else AscL = Asc(s)
 End Function
@@ -164,8 +173,8 @@ End Function
 
 Function bc_EAN(chaine$, Optional params%, Optional zones%) As String
   'Parameters : String up to 13 chars wide,
-  ' params 1,2,3,4 = EAN13,EAN8,UPCA,UPCE - type ToDo
-  '        + 8 add checksum                      ToDo
+  ' params 1,2,3,4 = EAN13,EAN8,UPCA,UPCE - type
+  '        + 8 add checksum
   Dim i%, j%, checksum%, first%, CodeBarre$, s$, p$, q$, zon$, subtyp%, check%
   Dim tableA As Boolean
   If IsMissing(zones) Then
@@ -200,7 +209,7 @@ Function bc_EAN(chaine$, Optional params%, Optional zones%) As String
     ElseIf first = 4 Then
       s = "00" & Left(p, 4) & "00000" & Mid(p, 5, 1)
     ElseIf first = 3 Then
-      s = "00" & Left(p, 3) & "000000" & Mid(p, 4, 2)
+      s = "00" & Left(p, 3) & "00000" & Mid(p, 4, 2)
     Else
       s = "00" & Left(p, 2) & right(p, 1) & "0000" & Mid(p, 3, 3)
     End If
@@ -915,6 +924,7 @@ Function dmx_gen(ptext As String, poptions As String) As String
     arr(0, 0) = 128
     ' doplnime ECC
     Call dmx_rs(301, encoded1, 0 + i, 0 + k, ch)
+'' Call arr2hexstr(encoded1)
     encix(1) = i + k
     dmx_row = 4: dmx_col = 0: i = 1
     Do
@@ -1101,7 +1111,7 @@ Sub bb_putbits(ByRef parr As Variant, ByRef ppos As Integer, pa As Variant, ByVa
     End If
     If (l < 8) Then w = w And (256 - 2 ^ (8 - l))
     If b > 0 Then
-      w = w * 2 ^ b
+      w = w * 2 ^ (8 - b)
       parr(i) = parr(i) Or Int(w / 256)
       parr(i + 1) = parr(i + 1) Or (w And 255)
     Else
@@ -1149,22 +1159,23 @@ Sub qr_bch_calc(ByRef data As Long, ByVal poly As Long)
   data = x + rv
 End Sub
 
-Sub qr_params(ByVal pcap As Long, ByVal ecl As Integer, ByRef rv As Variant)
+Sub qr_params(ByVal pcap As Long, ByVal ecl As Integer, ByRef rv As Variant, ByRef ecx_poc As Variant)
   Dim siz%, totby&, s$, i&, syncs%, ccsiz%, ccblks%, j&, ver%
 '  Dim rv(15) as Integer ' 1:version,2:size,3:ccs,4:ccb,5:totby,6-12:syncs(7),13-15:versinfo(3)
 '  ecl:M=0,L=1,H=2,Q=3
   If ecl < 0 Or ecl > 3 Then Exit Sub
   For i = 1 To UBound(rv): rv(i) = 0: Next i
-  j = Int((pcap + 20 + 7) / 8)
+  j = Int((pcap + 18 * ecx_poc(1) + 17 * ecx_poc(2) + 20 * ecx_poc(3) + 7) / 8)
   If ecl = 0 And j > 2334 Or _
      ecl = 1 And j > 2956 Or _
      ecl = 2 And j > 1276 Or _
      ecl = 3 And j > 1666 Then
     Exit Sub
   End If
-  j = Int((pcap + 12 + 7) / 8)  ' 12 bits mode + len for ver 1..9
+  j = Int((pcap + 14 * ecx_poc(1) + 13 * ecx_poc(2) + 12 * ecx_poc(3) + 7) / 8)
   For ver = 1 To 40
-    If ver = 10 Then j = Int((pcap + 20 + 7) / 8)  ' 20 bits mode + len for ver 10..49
+    If ver = 10 Then j = Int((pcap + 16 * ecx_poc(1) + 15 * ecx_poc(2) + 20 * ecx_poc(3) + 7) / 8)
+    If ver = 27 Then j = Int((pcap + 18 * ecx_poc(1) + 17 * ecx_poc(2) + 20 * ecx_poc(3) + 7) / 8)
     siz = 4 * ver + 17
     i = (ver - 1) * 12 + ecl * 3
     s = Mid("D01A01K01G01J01D01V01P01T01I01P02L02L02N01J04T02R02T01P04L04J04L02V04R04L04N02T05L06P04R02T06P06P05X02R08N08T05L04V08R08X05N04R11V08P08R04V11T10P09T04P16R12R09X04R16N16R10P06R18X12V10R06X16R17V11V06V19V16T13X06V21V18T14V07T25T21T16V08V25X20T17V08X25V23V17V09R34X23V18X09X30X25V20X10X32X27V21T12X35X29V23V12X37V34V25X12X40X34V26X13X42X35V28X14X45X38V29X15X48X40V31X16X51X43V33X17X54X45V35X18X57X48V37X19X60X51V38X19X63X53V40X20X66X56V43X21X70X59V45X22X74X62V47X24X77X65V49X25X81X68" _
@@ -1181,6 +1192,7 @@ Sub qr_params(ByVal pcap As Long, ByVal ecl As Integer, ByRef rv As Variant)
       If ver > 6 Then totby = totby - 4
       If syncs = 1 Then totby = totby - 1
     End If
+'MsgBox "ver:" & ver & " tot: " & totby & " dat:" & (totby - ccsiz * ccblks) & " need:" & j
     If totby - ccsiz * ccblks >= j Then Exit For
   Next
   If ver > 1 Then
@@ -1470,11 +1482,13 @@ End Function
 
 Function qr_gen(ptext As String, poptions As String) As String
   Dim encoded1() As Byte ' byte mode (ASCII) all max 3200 bytes
-'  Dim encoded2(3200) As Byte ' numeric encoding 3 numbers = 10 bits (000...999 in 0..1023)
-'  Dim encoded3(3200) As Byte ' Alphanum "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:" 2x45 posibilites in 11 bits 2025 of 2048
-  Dim encix1%, encix2% ',encix3%
+  Dim encix1%
+  Dim ecx_cnt(3) As Integer
+  Dim ecx_pos(3) As Integer
+  Dim ecx_poc(3) As Integer
+  Dim eb(20, 4) As Integer
   Dim ascimatrix$, mode$, err$
-  Dim ecl%, enctype%, r%, c%, mask%, utf8%
+  Dim ecl%, r%, c%, mask%, utf8%, ebcnt%
   Dim i&, j&, k&, m&
   Dim ch%, s%, siz%
   Dim x As Boolean
@@ -1496,29 +1510,144 @@ Function qr_gen(ptext As String, poptions As String) As String
     err = "Not data"
     Exit Function
   End If
+  For i = 1 To 3
+    ecx_pos(i) = 0
+    ecx_cnt(i) = 0
+    ecx_poc(i) = 0
+  Next i
+  ebcnt = 1
   utf8 = 0
-  For i = 1 To Len(ptext)
-    k = AscL(Mid(ptext, i, 1))
-    If k >= &H1FFFFF Then ' FFFF - 1FFFFFFF
-      utf8 = utf8 + 4
-    ElseIf k >= &H7FF Then ' 7FF-FFFF 3 bytes
-      utf8 = utf8 + 3
-    ElseIf k >= 128 Then
-      utf8 = utf8 + 2
+  For i = 1 To Len(ptext) + 1
+    If i > Len(ptext) Then
+      k = -5
     Else
-      utf8 = utf8 + 1
+      k = AscL(Mid(ptext, i, 1))
+      If k >= &H1FFFFF Then ' FFFF - 1FFFFFFF
+        m = 4
+        k = -1
+      ElseIf k >= &H7FF Then ' 7FF-FFFF 3 bytes
+        m = 3
+        k = -1
+      ElseIf k >= 128 Then
+        m = 2
+        k = -1
+      Else
+        m = 1
+        k = InStr(qralnum, Mid(ptext, i, 1)) - 1
+      End If
     End If
+    If (k < 0) Then ' bude byte nebo konec
+      If ecx_cnt(1) >= 9 Or (k = -5 And ecx_cnt(1) = ecx_cnt(3)) Then ' Az dosud bylo mozno pouzitelne numeric
+        If (ecx_cnt(2) - ecx_cnt(1)) >= 8 Or (ecx_cnt(3) = ecx_cnt(2)) Then ' pred num je i pouzitelny alnum
+          If (ecx_cnt(3) > ecx_cnt(2)) Then ' Jeste pred alnum bylo byte
+            eb(ebcnt, 1) = 3         ' Typ byte
+            eb(ebcnt, 2) = ecx_pos(3) ' pozice
+            eb(ebcnt, 3) = ecx_cnt(3) - ecx_cnt(2) ' delka
+            ebcnt = ebcnt + 1
+            ecx_poc(3) = ecx_poc(3) + 1
+          End If
+          eb(ebcnt, 1) = 2         ' Typ alnum
+          eb(ebcnt, 2) = ecx_pos(2)
+          eb(ebcnt, 3) = ecx_cnt(2) - ecx_cnt(1) ' delka
+          ebcnt = ebcnt + 1
+          ecx_poc(2) = ecx_poc(2) + 1
+          ecx_cnt(2) = 0
+        ElseIf ecx_cnt(3) > ecx_cnt(1) Then ' byly bytes pred numeric
+          eb(ebcnt, 1) = 3         ' Typ byte
+          eb(ebcnt, 2) = ecx_pos(3) ' pozice
+          eb(ebcnt, 3) = ecx_cnt(3) - ecx_cnt(1) ' delka
+          ebcnt = ebcnt + 1
+          ecx_poc(3) = ecx_poc(3) + 1
+        End If
+      ElseIf (ecx_cnt(2) >= 8) Or (k = -5 And ecx_cnt(2) = ecx_cnt(3)) Then ' Az dosud bylo mozno pouzitelne alnum
+        If (ecx_cnt(3) > ecx_cnt(2)) Then ' Jeste pred alnum bylo byte
+          eb(ebcnt, 1) = 3         ' Typ byte
+          eb(ebcnt, 2) = ecx_pos(3) ' pozice
+          eb(ebcnt, 3) = ecx_cnt(3) - ecx_cnt(2) ' delka
+          ebcnt = ebcnt + 1
+          ecx_poc(3) = ecx_poc(3) + 1
+        End If
+        eb(ebcnt, 1) = 2         ' Typ alnum
+        eb(ebcnt, 2) = ecx_pos(2)
+        eb(ebcnt, 3) = ecx_cnt(2) ' delka
+        ebcnt = ebcnt + 1
+        ecx_poc(2) = ecx_poc(2) + 1
+        ecx_cnt(3) = 0
+        ecx_cnt(2) = 0 ' vse zpracovano
+      ElseIf (k = -5 And ecx_cnt(3) > 0) Then ' konec ale mam co ulozit
+        eb(ebcnt, 1) = 3         ' Typ byte
+        eb(ebcnt, 2) = ecx_pos(3) ' pozice
+        eb(ebcnt, 3) = ecx_cnt(3) ' delka
+        ebcnt = ebcnt + 1
+        ecx_poc(3) = ecx_poc(3) + 1
+      End If
+    End If
+    If k = -5 Then Exit For
+    If (k >= 0) Then ' Muzeme alnum
+      If (k >= 10 And ecx_cnt(1) >= 12) Then ' Az dosud bylo mozno num
+        If (ecx_cnt(2) - ecx_cnt(1)) >= 8 Or (ecx_cnt(3) = ecx_cnt(2)) Then ' Je tam i alnum ktery stoji za to
+          If (ecx_cnt(3) > ecx_cnt(2)) Then ' Jeste pred alnum bylo byte
+            eb(ebcnt, 1) = 3         ' Typ byte
+            eb(ebcnt, 2) = ecx_pos(3) ' pozice
+            eb(ebcnt, 3) = ecx_cnt(3) - ecx_cnt(2) ' delka
+            ebcnt = ebcnt + 1
+            ecx_poc(3) = ecx_poc(3) + 1
+          End If
+          eb(ebcnt, 1) = 2         ' Typ alnum
+          eb(ebcnt, 2) = ecx_pos(2)
+          eb(ebcnt, 3) = ecx_cnt(2) - ecx_cnt(1) ' delka
+          ebcnt = ebcnt + 1
+          ecx_poc(2) = ecx_poc(2) + 1
+          ecx_cnt(2) = 0 ' vse zpracovano
+        ElseIf (ecx_cnt(3) > ecx_cnt(1)) Then ' Pred Num je byte
+          eb(ebcnt, 1) = 3         ' Typ byte
+          eb(ebcnt, 2) = ecx_pos(3) ' pozice
+          eb(ebcnt, 3) = ecx_cnt(3) - ecx_cnt(1) ' delka
+          ebcnt = ebcnt + 1
+          ecx_poc(3) = ecx_poc(3) + 1
+        End If
+        eb(ebcnt, 1) = 1         ' Typ numerix
+        eb(ebcnt, 2) = ecx_pos(1)
+        eb(ebcnt, 3) = ecx_cnt(1) ' delka
+        ebcnt = ebcnt + 1
+        ecx_poc(1) = ecx_poc(1) + 1
+        ecx_cnt(1) = 0
+        ecx_cnt(2) = 0
+        ecx_cnt(3) = 0 ' vse zpracovano
+      End If
+      If ecx_cnt(2) = 0 Then ecx_pos(2) = i
+      ecx_cnt(2) = ecx_cnt(2) + 1
+    Else ' mozno alnum
+      ecx_cnt(2) = 0
+    End If
+    If k >= 0 And k < 10 Then ' muze byt numeric
+      If ecx_cnt(1) = 0 Then ecx_pos(1) = i
+      ecx_cnt(1) = ecx_cnt(1) + 1
+    Else
+      ecx_cnt(1) = 0
+    End If
+    If ecx_cnt(3) = 0 Then ecx_pos(3) = i
+    ecx_cnt(3) = ecx_cnt(3) + m
+    utf8 = utf8 + m
+    If ebcnt >= 16 Then ' Uz by se mi tri dalsi bloky stejne nevesli
+      ecx_cnt(1) = 0
+      ecx_cnt(2) = 0
+    End If
+'MsgBox "Znak:" & Mid(ptext,i,1) & "(" & k & ") ebn=" & ecx_pos(1) & "." & ecx_cnt(1) & " eba=" & ecx_pos(2) & "." & ecx_cnt(2) & " ebb=" & ecx_pos(3) & "." & ecx_cnt(3)
   Next
-  i = Len(ptext) ' in UCS2 len
-  If utf8 > i Then ' je treba UTF
-    i = utf8
-    utf8 = 12
-  Else
-    utf8 = 0
-  End If
+  ebcnt = ebcnt - 1
+  c = 0
+  For i = 1 To ebcnt
+    Select Case eb(i, 1)
+      Case 1: eb(i, 4) = Int(eb(i, 3) / 3) * 10 + (eb(i, 3) Mod 3) * 3 + Iif((eb(i, 3) Mod 3) > 0, 1, 0)
+      Case 2: eb(i, 4) = Int(eb(i, 3) / 2) * 11 + (eb(i, 3) Mod 2) * 6
+      Case 3: eb(i, 4) = eb(i, 3) * 8
+    End Select
+    c = c + eb(i, 4)
+  Next i
 '  UTF-8 is default not need ECI value - zxing cannot recognize
 '  Call qr_params(i * 8 + utf8,mode,qrp)
-  Call qr_params(i * 8, ecl, qrp)
+  Call qr_params(c, ecl, qrp, ecx_poc)
   If qrp(1) <= 0 Then
     err = "Too long"
     Exit Function
@@ -1536,49 +1665,79 @@ Function qr_gen(ptext As String, poptions As String) As String
 '    k = &H700 + 26 ' UTF-8=26 ; Win1250 = 21; 8859-2 = 4 viz http://strokescribe.com/en/ECI.html
 '    bb_putbits(encoded1,encix1,k,12)
 '  End If
-  If qrp(1) >= 27 Then
-    i = &H40000 + i ' mode byte + length
-    Call bb_putbits(encoded1, encix1, i, 20)
-  ElseIf qrp(1) >= 10 Then
-    i = &H40000 + i ' mode byte + length
-    Call bb_putbits(encoded1, encix1, i, 20)
-  Else
-    i = &H400 + (i Mod 256) ' mode byte + length
-    Call bb_putbits(encoded1, encix1, i, 12)
-  End If
-  For i = 1 To Len(ptext)
-    k = AscL(Mid(ptext, i, 1))
-    If utf8 > 0 Then
-      If k > &H1FFFFF Then ' FFFF - 1FFFFFFF
-        ch = &HF0 + Int(k / &H40000) Mod 8
-        Call bb_putbits(encoded1, encix1, ch, 8)
-        ch = 128 + Int(k / &H1000) Mod 64
-        Call bb_putbits(encoded1, encix1, ch, 8)
-        ch = 128 + Int(k / 64) Mod 64
-        Call bb_putbits(encoded1, encix1, ch, 8)
-        ch = 128 + k Mod 64
-        Call bb_putbits(encoded1, encix1, ch, 8)
-      ElseIf k > &H7FF Then ' 7FF-FFFF 3 bytes
-        ch = &HE0 + Int(k / &H1000) Mod 16
-        Call bb_putbits(encoded1, encix1, ch, 8)
-        ch = 128 + Int(k / 64) Mod 64
-        Call bb_putbits(encoded1, encix1, ch, 8)
-        ch = 128 + k Mod 64
-        Call bb_putbits(encoded1, encix1, ch, 8)
-      ElseIf k > &H7F Then ' 2 bytes
-        ch = &HC0 + Int(k / 64) Mod 32
-        Call bb_putbits(encoded1, encix1, ch, 8)
-        ch = 128 + k Mod 64
-        Call bb_putbits(encoded1, encix1, ch, 8)
+  encix1 = 0
+  For i = 1 To ebcnt
+    Select Case eb(i, 1)
+      Case 1: c = Iif(qrp(1) < 10, 10, Iif(qrp(1) < 27, 12, 14)): k = 2 ^ c + eb(i, 3)
+      Case 2: c = Iif(qrp(1) < 10, 9, Iif(qrp(1) < 27, 11, 13)): k = 2 * (2 ^ c) + eb(i, 3)
+      Case 3: c = Iif(qrp(1) < 10, 8, 16): k = 4 * (2 ^ c) + eb(i, 3)
+    End Select
+    Call bb_putbits(encoded1, encix1, k, c + 4)
+    j = 0
+    m = eb(i, 2)
+    r = 0
+    While j < eb(i, 3)
+      k = AscL(Mid(ptext, m, 1))
+      m = m + 1
+      If eb(i, 1) = 1 Then
+        r = (r * 10) + ((k - &H30) Mod 10)
+        If (j Mod 3) = 2 Then
+          Call bb_putbits(encoded1, encix1, r, 10)
+          r = 0
+        End If
+        j = j + 1
+      ElseIf eb(i, 1) = 2 Then
+        r = (r * 45) + ((InStr(qralnum, Chr(k)) - 1) Mod 45)
+        If (j Mod 2) = 1 Then
+          Call bb_putbits(encoded1, encix1, r, 11)
+          r = 0
+        End If
+        j = j + 1
       Else
-        ch = k Mod 256
-        Call bb_putbits(encoded1, encix1, ch, 8)
+        If k > &H1FFFFF Then ' FFFF - 1FFFFFFF
+          ch = &HF0 + Int(k / &H40000) Mod 8
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          ch = 128 + Int(k / &H1000) Mod 64
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          ch = 128 + Int(k / 64) Mod 64
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          ch = 128 + k Mod 64
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          j = j + 4
+        ElseIf k > &H7FF Then ' 7FF-FFFF 3 bytes
+          ch = &HE0 + Int(k / &H1000) Mod 16
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          ch = 128 + Int(k / 64) Mod 64
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          ch = 128 + k Mod 64
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          j = j + 3
+        ElseIf k > &H7F Then ' 2 bytes
+          ch = &HC0 + Int(k / 64) Mod 32
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          ch = 128 + k Mod 64
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          j = j + 2
+        Else
+          ch = k Mod 256
+          Call bb_putbits(encoded1, encix1, ch, 8)
+          j = j + 1
+        End If
       End If
-    Else
-      ch = k Mod 256
-      Call bb_putbits(encoded1, encix1, ch, 8)
-    End If
+    Wend
+    Select Case eb(i, 1)
+      Case 1:
+        If (j Mod 3) = 1 Then
+          Call bb_putbits(encoded1, encix1, r, 4)
+        ElseIf (j Mod 3) = 2 Then
+          Call bb_putbits(encoded1, encix1, r, 7)
+        End If
+      Case 2:
+        If (j Mod 2) = 1 Then Call bb_putbits(encoded1, encix1, r, 6)
+    End Select
+'MsgBox "blk[" & i & "] t:" & eb(i,1) & "from " & eb(i,2) & " to " & eb(i,3) + eb(i,2) & " bits=" & encix1
   Next i
+  Call bb_putbits(encoded1, encix1, 0, 4) ' end of chain
   If (encix1 Mod 8) <> 0 Then  ' round to byte
     Call bb_putbits(encoded1, encix1, 0, 8 - (encix1 Mod 8))
   End If
@@ -1674,8 +1833,8 @@ Function qr_gen(ptext As String, poptions As String) As String
     mask = s
 '    MsgBox "best is " & mask & " with score " & j
   End If
-  i = qr_xormask(qrarr, siz, mask, True)
   GoSub addmm
+  i = qr_xormask(qrarr, siz, mask, True)
   ascimatrix = ""
   For r = 0 To siz Step 2
     s = 0
@@ -1699,6 +1858,7 @@ addmm:
   k = ecl * 8 + mask
   ' poly: 101 0011 0111
   Call qr_bch_calc(k, &H537)
+'MsgBox "mask :" & hex(k,3) & " " & hex(k xor &H5412,3)
   k = k Xor &H5412 ' micro xor &H4445
   r = 0
   c = siz - 1
@@ -1960,7 +2120,7 @@ e1derr:
   Exit Sub
 End Sub
 
-Sub bc_2Dms(xBC As String)
+Sub bc_2Dms(xBC As String, Optional xNam As String)
  Dim xShape As Shape, xBkgr As Shape
  Dim xSheet As Worksheet
  Dim xRange As Range, xCell As Range
@@ -1970,15 +2130,20 @@ Sub bc_2Dms(xBC As String)
  Dim x, y, m, dm, a As Double
  Dim b%, n%, w%, p$, s$, h%, g%
  
- If TypeName(Application.Caller) <> "Range" Then
-   Exit Sub
+ If TypeName(Application.Caller) = "Range" Then
+   Set xSheet = Application.Caller.Worksheet
+   Set xRange = Application.Caller
+   xAddr = xRange.Address
+   xPosOldX = xRange.Left
+   xPosOldY = xRange.Top
+ Else
+   Set xSheet = Worksheets(1)
+   If IsMissing(xNam) Then
+     xAddr = "QR"
+   Else
+     xAddr = xNam
+   End If
  End If
- Set xSheet = Application.Caller.Worksheet
- Set xRange = Application.Caller
-' Set xCell = xRange("A1")
- xAddr = xRange.Address
- xPosOldX = xRange.Left
- xPosOldY = xRange.Top
  xSizeOldW = 0
  xSizeOldH = 0
  s = "BC" & xAddr & "#GR"
